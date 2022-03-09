@@ -7,16 +7,18 @@ import matplotlib.pyplot as plt
 
 os.environ["TFHUB_DOWNLOAD_PROGRESS"] = "True"
 
+# Image height and width
 batch_size = 32
-img_height = 180
-img_width = 180
+img_height = 100
+img_width = 100
 
+# Training image file path
 dataset_url = "DataSet/Training"
 class_names = ['St_001', 'St_002', 'St_003', 'St_004', 'St_005']
 
 
-# Dataset Creation
-def create_dataset():
+def create_model():
+    # Dataset Creation
     # Train dataset
     train_ds = tf.keras.utils.image_dataset_from_directory(
         dataset_url,
@@ -36,11 +38,13 @@ def create_dataset():
         batch_size=batch_size)
 
     # Classes Names
-    classNames = train_ds.class_names
+    class_names = train_ds.class_names
 
-    print("Classes: ", classNames)  # ['St_001', 'St_002', 'St_003', 'St_004', 'St_005']
+    visualize_model(train_ds, class_names, val_ds)
 
-    # Iterate over the dataset
+
+# Visualize Method
+def visualize_model(train_ds, class_names, val_ds):
     plt.figure(figsize=(10, 10))
     for images, labels in train_ds.take(1):
         for i in range(9):
@@ -49,15 +53,15 @@ def create_dataset():
             plt.title(class_names[labels[i]])
             plt.axis("off")
 
-    for image_batch, labels_batch in train_ds:
-        print(image_batch.shape)
-        print(labels_batch.shape)
-        break
+        for image_batch, labels_batch in train_ds:
+            print(image_batch.shape)
+            print(labels_batch.shape)
+            break
 
-    AUTOMOUNT = tf.data.AUTOTUNE
+    AUTOTUNE = tf.data.AUTOTUNE
 
-    train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOMOUNT)
-    val_ds = val_ds.cache().prefetch(buffer_size=AUTOMOUNT)
+    train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
+    val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
     normalization_layer = layers.Rescaling(1. / 255)
 
@@ -67,6 +71,10 @@ def create_dataset():
     # Notice the pixel values are now in `[0,1]`.
     print(np.min(first_image), np.max(first_image))
 
+    train_model(train_ds, val_ds)
+
+
+def train_model(train_ds, val_ds):
     num_classes = len(class_names)
 
     model = Sequential([
@@ -85,41 +93,40 @@ def create_dataset():
     model.compile(optimizer='adam',
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
+
     model.summary()
 
-    epochs = 10
+    checkpoint_path = "DataSet/Model"
+    checkpoint_dir = os.path.dirname(checkpoint_path)
+
+    # Create a callback that saves the model's weights
+    cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
+                                                     save_weights_only=True,
+                                                     verbose=1)
+    epochs = 15
     history = model.fit(
         train_ds,
         validation_data=val_ds,
-        epochs=epochs
+        epochs=epochs,
+        callbacks=[cp_callback]
     )
 
-    acc = history.history['accuracy']
-    val_acc = history.history['val_accuracy']
+    os.listdir(checkpoint_dir)
 
-    loss = history.history['loss']
-    val_loss = history.history['val_loss']
-
-    epochs_range = range(epochs)
-
-    plt.figure(figsize=(8, 8))
-    plt.subplot(1, 2, 1)
-    plt.plot(epochs_range, acc, label='Training Accuracy')
-    plt.plot(epochs_range, val_acc, label='Validation Accuracy')
-    plt.legend(loc='lower right')
-    plt.title('Training and Validation Accuracy')
-
-    plt.subplot(1, 2, 2)
-    plt.plot(epochs_range, loss, label='Training Loss')
-    plt.plot(epochs_range, val_loss, label='Validation Loss')
-    plt.legend(loc='upper right')
-    plt.title('Training and Validation Loss')
-    plt.show()
+    reply = input("Do you want to save MOFI model ? (y/n): ")
+    reply = reply.lower()
+    if reply.lower() == "y":
+        model.save_weights(checkpoint_dir)
+        print("SUCCESSFULLY SAVE THE MOFI MODEL")
+    else:
+        print("Thank you for using MOFI")
 
 
-def main():
-    create_dataset()
+print("\t******* TRAIN & SAVE <--> MOFI MODEL  *******")
 
-
-if __name__ == "__main__":
-    main()
+reply = input("Do you want to train the MOFI model ? (y/n): ")
+reply = reply.lower()
+if reply.lower() == "y":
+    create_model()
+else:
+    print("Thank you for using MOFI")
