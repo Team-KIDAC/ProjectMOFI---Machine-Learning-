@@ -30,7 +30,7 @@ class ClassifierMOFI:
                                      loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                                      metrics=['accuracy'])
 
-        imageClassifierModel.load_weights('DataSet/checkpoint')
+        # imageClassifierModel.load_weights('DataSet/Model/cp.ckpt')
         self.probability_model = tf.keras.Sequential([imageClassifierModel,
                                                       tf.keras.layers.Softmax()])
 

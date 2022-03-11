@@ -13,7 +13,7 @@ img_height = 100
 img_width = 100
 
 # Training image file path
-dataset_url = "DataSet/Training"
+dataset_path = "DataSet/Training"
 class_names = ['St_001', 'St_002', 'St_003', 'St_004', 'St_005']
 
 
@@ -21,7 +21,7 @@ def create_model():
     # Dataset Creation
     # Train dataset
     train_ds = tf.keras.utils.image_dataset_from_directory(
-        dataset_url,
+        dataset_path,
         validation_split=0.2,
         subset="training",
         seed=123,
@@ -30,7 +30,7 @@ def create_model():
 
     # Validation Dataset
     val_ds = tf.keras.utils.image_dataset_from_directory(
-        dataset_url,
+        dataset_path,
         validation_split=0.2,
         subset="validation",
         seed=123,
@@ -96,14 +96,14 @@ def train_model(train_ds, val_ds):
 
     model.summary()
 
-    checkpoint_path = "DataSet/Model"
+    checkpoint_path = "DataSet/Model/cp.ckpt"
     checkpoint_dir = os.path.dirname(checkpoint_path)
 
     # Create a callback that saves the model's weights
     cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
                                                      save_weights_only=True,
                                                      verbose=1)
-    epochs = 15
+    epochs = 3
     history = model.fit(
         train_ds,
         validation_data=val_ds,
@@ -116,7 +116,6 @@ def train_model(train_ds, val_ds):
     reply = input("Do you want to save MOFI model ? (y/n): ")
     reply = reply.lower()
     if reply.lower() == "y":
-        model.save_weights(checkpoint_dir)
         print("SUCCESSFULLY SAVE THE MOFI MODEL")
     else:
         print("Thank you for using MOFI")
