@@ -9,8 +9,8 @@ os.environ["TFHUB_DOWNLOAD_PROGRESS"] = "True"
 
 # Image height and width
 batch_size = 32
-img_height = 100
-img_width = 100
+img_height = 512
+img_width = 512
 
 # Training image file path
 dataset_path = "DataSet/Training"
@@ -75,7 +75,7 @@ def visualize_model(train_ds, class_names, val_ds):
 
 
 def train_model(train_ds, val_ds):
-    num_classes = len(class_names)
+    num_classes = 5
 
     model = Sequential([
         layers.Rescaling(1. / 255, input_shape=(img_height, img_width, 3)),
@@ -96,14 +96,14 @@ def train_model(train_ds, val_ds):
 
     model.summary()
 
-    checkpoint_path = "DataSet/Model/cp.ckpt"
+    checkpoint_path = "Model/checkpoint"
     checkpoint_dir = os.path.dirname(checkpoint_path)
 
     # Create a callback that saves the model's weights
     cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
                                                      save_weights_only=True,
                                                      verbose=1)
-    epochs = 3
+    epochs = 6
     history = model.fit(
         train_ds,
         validation_data=val_ds,

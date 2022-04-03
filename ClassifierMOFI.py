@@ -9,12 +9,12 @@ import matplotlib.pyplot as plt
 class ClassifierMOFI:
     # Constructor.
     def __init__(self):
-        self.IMG_HEIGHT = 128
-        self.IMG_WIDTH = 128
+        self.IMG_HEIGHT = 512
+        self.IMG_WIDTH = 512
 
         # Create an empty model
         imageClassifierModel = keras.Sequential([
-            keras.layers.Rescaling(1. / 255, input_shape=(128, 128, 3)),
+            keras.layers.Rescaling(1. / 255, input_shape=(512, 512, 3)),
             keras.layers.Conv2D(16, 3, padding='same', activation='relu'),
             keras.layers.MaxPooling2D(),
             keras.layers.Conv2D(32, 3, padding='same', activation='relu'),
@@ -23,14 +23,14 @@ class ClassifierMOFI:
             keras.layers.MaxPooling2D(),
             keras.layers.Flatten(),
             keras.layers.Dense(128, activation='relu'),
-            keras.layers.Dense(3)
+            keras.layers.Dense(5)
         ])
 
         imageClassifierModel.compile(optimizer='adam',
                                      loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                                      metrics=['accuracy'])
 
-        # imageClassifierModel.load_weights('DataSet/Model/cp.ckpt')
+        imageClassifierModel.load_weights('Model/checkpoint')
         self.probability_model = tf.keras.Sequential([imageClassifierModel,
                                                       tf.keras.layers.Softmax()])
 
