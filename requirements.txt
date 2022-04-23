@@ -1,5 +1,5 @@
 Flask~=1.1
-MarkupSafe
+MarkupSafe==2.0.1
 tensorflow
 numpy
 matplotlib
