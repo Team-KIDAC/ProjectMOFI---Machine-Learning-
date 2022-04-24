@@ -24,6 +24,10 @@ steps:
     pip install -r requirements.txt
   displayName: 'Install dependencies'
 
+- task: CopyFiles@2
+  inputs:
+    targetFolder: '$(Build.ArtifactStagingDirectory)'    
+ 
 - task: PublishBuildArtifacts@1    
   displayName: 'Publish Artifact: drop'
   inputs:
